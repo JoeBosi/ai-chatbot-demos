@@ -1,0 +1,24 @@
+.env
+.env.*
+!.env.example
+secrets/
+node_modules/
+.DS_Store
+.claude/settings.local.json
+.claude/agent-memory-local/
+
+# Kept out of the public repository: personal notes, the school pitch and the internal log.
+.claude/memory/
+.claude/agent-memory/
+pitch/
+docs/JOURNAL.md
+docs/research/isis-valdarno/
+clinica/REVISIONE-DIVULGAZIONE.md
+
+# Build output and caches in the two apps
+**/node_modules/
+**/.next/
+**/.cache/
+**/test-results/
+**/playwright-report/
+*.bak

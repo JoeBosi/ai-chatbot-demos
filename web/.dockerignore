@@ -1,0 +1,10 @@
+node_modules
+.next
+.cache
+.env*
+tests
+test-results
+playwright-report
+*.tsbuildinfo
+Dockerfile
+docker-compose.yml

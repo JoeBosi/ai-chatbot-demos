@@ -1,0 +1,34 @@
+# Blocco da aggiungere a /etc/caddy/Caddyfile per chatbot-clinica.giuseppebosi.com
+# Prima: sudo cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.bak.$(date +%Y%m%d-%H%M%S)
+# Dopo:  sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy
+# Serve che il record DNS A di chatbot-clinica punti al VPS, altrimenti Caddy non ottiene il
+# certificato e il sito resta irraggiungibile (gli altri siti non ne soffrono).
+
+chatbot-clinica.giuseppebosi.com {
+    # Sito aperto a tutti: nessuna basic_auth. Le difese sono applicative — chiave pubblica
+    # x-cf-key sulle API, controllo dell'origine, limiti per visitatore e tetto giornaliero.
+
+    # La conversazione intera viaggia a ogni messaggio: l'app accetta al massimo 400 KB.
+    request_body {
+        max_size 512KB
+    }
+
+    # Le risposte della chat sono in streaming (SSE): niente compressione e flush immediato.
+    @compressible not path /api/chat
+    encode @compressible zstd gzip
+
+    reverse_proxy 127.0.0.1:3050 {
+        # I limiti per visitatore si basano sull'IP reale.
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        flush_interval -1
+    }
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+}
