@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import { EMPTY_REPLY_TEXT, guardEmptyReply } from "./empty-reply";
 
-async function run(parts: { type: string; id?: string; text?: string }[]) {
+async function run(parts: { type: string; id?: string; text?: string }[], courtesy?: string) {
   const out: { type: string; id?: string; text?: string }[] = [];
   const stream = new ReadableStream({
     start(c) {
       parts.forEach((p) => c.enqueue(p));
       c.close();
     },
-  }).pipeThrough(guardEmptyReply());
+  }).pipeThrough(guardEmptyReply(courtesy));
   const reader = stream.getReader();
   for (let r = await reader.read(); !r.done; r = await reader.read()) out.push(r.value);
   return out;
@@ -75,5 +75,22 @@ describe("guardEmptyReply", () => {
     expect(visible).toContain("Vuole prenotare?");
     expect(visible).not.toContain(EMPTY_REPLY_TEXT);
     expect(out.map((p) => p.type).filter((t) => t.startsWith("text"))).toEqual(["text-start", "text-delta", "text-delta", "text-end"]);
+  });
+
+  it("keeps an English answer that starts like a sentence, not like reasoning", async () => {
+    const answer = "Okay, based on your budget the Vapora Classica is the best fit: 349 €, with a two-hole steam wand.";
+    const out = await run([
+      { type: "start-step" },
+      { type: "text-start", id: "a" },
+      { type: "text-delta", id: "a", text: answer },
+      { type: "text-end", id: "a" },
+      { type: "finish" },
+    ]);
+    expect(out.filter((p) => p.type === "text-delta").map((p) => p.text).join("")).toBe(answer);
+  });
+
+  it("uses the courtesy text it is given", async () => {
+    const out = await run([{ type: "start-step" }, { type: "finish" }], "EN courtesy");
+    expect(out.some((p) => p.text === "EN courtesy")).toBe(true);
   });
 });

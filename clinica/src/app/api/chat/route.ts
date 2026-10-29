@@ -14,7 +14,8 @@ import { z } from "zod";
 import { medici } from "@/data/medici";
 import { prestazioni } from "@/data/prestazioni";
 import { chatModel } from "@/lib/ai/provider";
-import { guardEmptyReply } from "@/lib/ai/empty-reply";
+import { EMPTY_REPLY_TEXT, EMPTY_REPLY_TEXT_EN, guardEmptyReply } from "@/lib/ai/empty-reply";
+import { replyLanguage } from "@/lib/ai/reply-language";
 import { buildInstructions, type PageContext } from "@/lib/ai/instructions";
 import { tools, type ClinicUIMessage } from "@/lib/ai/tools";
 import { db } from "@/lib/db";
@@ -116,6 +117,10 @@ export async function POST(req: Request) {
   const quota = await consumeChatQuota(ipHash);
   if (!quota.ok) return jsonError(429, quota.reason, { "Retry-After": String(quota.retryAfterSeconds) });
 
+  // The answer follows the customer's language; on the /en pages English is the default.
+  const lastText = [...messages].reverse().find((m) => m.role === "user")?.parts.find((p) => p.type === "text");
+  const reply = replyLanguage(parsed.context?.path, lastText && "text" in lastText ? String(lastText.text) : "");
+
   const { model, label } = chatModel();
   const modelMessages = pruneMessages({
     messages: await convertToModelMessages(messages.slice(-MAX_MESSAGES), { tools, ignoreIncompleteToolCalls: true }),
@@ -124,7 +129,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model,
-    instructions: buildInstructions(pageContext(parsed.context)),
+    instructions: buildInstructions(pageContext(parsed.context), new Date(), reply),
     messages: modelMessages,
     tools,
     // Nothing that changes an agenda happens without the patient clicking: booking and cancelling
@@ -144,7 +149,9 @@ export async function POST(req: Request) {
 
   return createUIMessageStreamResponse({
     stream: toUIMessageStream<typeof tools, ClinicUIMessage>({
-      stream: result.stream.pipeThrough(guardEmptyReply()),
+      stream: result.stream.pipeThrough(
+        guardEmptyReply(reply === "en" ? EMPTY_REPLY_TEXT_EN : EMPTY_REPLY_TEXT),
+      ),
       tools,
       originalMessages: messages,
       messageMetadata: ({ part }) => {

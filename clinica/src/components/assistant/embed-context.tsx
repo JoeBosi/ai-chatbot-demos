@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+
+import { useI18n } from "@/components/lang-provider";
 import { createContext, useContext, useMemo, type ComponentProps, type ReactNode } from "react";
 
 /**
@@ -44,8 +46,10 @@ export function useApiHeaders() {
 
 type SiteLinkProps = Omit<ComponentProps<typeof Link>, "href"> & { href: string };
 
-export function SiteLink({ href, children, onClick, ...props }: SiteLinkProps) {
+export function SiteLink({ href: path, children, onClick, ...props }: SiteLinkProps) {
   const embedded = useEmbedded();
+  // Links from the chat stay in the page language: /prestazioni/x becomes /en/prestazioni/x on the English site.
+  const href = useI18n().href(path);
   if (embedded) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" {...props}>

@@ -8,6 +8,7 @@ import { Message, MessageContent, MessageResponse } from "@/components/ai-elemen
 import { Shimmer } from "@/components/assistant/shimmer";
 import { useAssistant } from "@/components/assistant/assistant-provider";
 import { useEmbedded } from "@/components/assistant/embed-context";
+import { useI18n } from "@/components/lang-provider";
 import {
   AvailabilityPart,
   BookAppointmentPart,
@@ -26,27 +27,37 @@ import { cn } from "@/lib/utils";
 
 const MAX_LENGTH = 1000;
 
-const starters = [
-  "Che visite e esami si possono prenotare?",
-  "Vorrei prenotare una visita cardiologica",
-  "Quanto tempo ci vuole per il referto di un'ecografia?",
-  "Dove si ritirano i referti?",
-  "Dov'è la mia prenotazione PR-20481? Email demo@vallenova.example",
-];
+const starters = {
+  it: [
+    "Che visite e esami si possono prenotare?",
+    "Vorrei prenotare una visita cardiologica",
+    "Quanto tempo ci vuole per il referto di un'ecografia?",
+    "Dove si ritirano i referti?",
+    "Dov'è la mia prenotazione PR-20481? Email demo@vallenova.example",
+  ],
+  en: [
+    "Which visits and tests can I book?",
+    "I'd like to book a cardiology consultation",
+    "How long does an ultrasound report take?",
+    "Where do I collect my reports?",
+    "Where is my booking PR-20481? Email demo@vallenova.example",
+  ],
+};
 
-function errorText(error: Error) {
+function errorText(error: Error, fallback: string) {
   try {
     const parsed = JSON.parse(error.message) as { error?: string };
     if (parsed.error) return parsed.error;
   } catch {
     /* not JSON */
   }
-  return error.message && error.message.length < 200 ? error.message : "L\u2019assistente non riesce a rispondere in questo momento.";
+  return error.message && error.message.length < 200 ? error.message : fallback;
 }
 
 export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
   const { open, setOpen, messages, status, error, ask, reset, regenerate, stop, addToolApprovalResponse, pageContext } = useAssistant();
   const embedded = useEmbedded();
+  const { t, lang } = useI18n();
   const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -93,7 +104,7 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
     <section
       ref={panelRef}
       role="dialog"
-      aria-label="Assistente del poliambulatorio"
+      aria-label={t("Assistente del poliambulatorio", "The clinic's assistant")}
       className={cn(
         "bg-background flex flex-col",
         embedded
@@ -106,21 +117,21 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
           <SparklesIcon className="size-4" aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-display text-xl leading-none">Assistente</p>
+          <p className="font-display text-xl leading-none">{t("Assistente", "Assistant")}</p>
           <p className="truncate text-xs text-white/70">
             {pageContext.serviceName
-              ? `Sta guardando: ${pageContext.serviceName}`
+              ? `${t("Sta guardando", "Looking at")}: ${pageContext.serviceName}`
               : pageContext.doctorName
-                ? `Sta guardando: ${pageContext.doctorName}`
-                : "Prenotazioni e informazioni"}
+                ? `${t("Sta guardando", "Looking at")}: ${pageContext.doctorName}`
+                : t("Prenotazioni e informazioni", "Bookings and information")}
           </p>
         </div>
         {messages.length > 0 && (
-          <Button size="icon-sm" variant="ghost" className="text-white hover:bg-white/10 hover:text-white" onClick={reset} aria-label="Nuova conversazione" title="Nuova conversazione">
+          <Button size="icon-sm" variant="ghost" className="text-white hover:bg-white/10 hover:text-white" onClick={reset} aria-label={t("Nuova conversazione", "New conversation")} title={t("Nuova conversazione", "New conversation")}>
             <RotateCcwIcon />
           </Button>
         )}
-        <Button size="icon-sm" variant="ghost" className="text-white hover:bg-white/10 hover:text-white" onClick={close} aria-label="Chiudi l'assistente">
+        <Button size="icon-sm" variant="ghost" className="text-white hover:bg-white/10 hover:text-white" onClick={close} aria-label={t("Chiudi l'assistente", "Close the assistant")}>
           <XIcon />
         </Button>
       </header>
@@ -130,13 +141,13 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
           {messages.length === 0 ? (
             <div className="flex flex-col gap-4">
               <div>
-                <p className="font-display text-2xl leading-tight">Buongiorno, come posso aiutarla?</p>
+                <p className="font-display text-2xl leading-tight">{t("Buongiorno, come posso aiutarla?", "Hello, how can I help you?")}</p>
                 <p className="text-muted-foreground mt-1 text-sm">
-                  Visite, prenotazioni, referti, orari. Niente pareri medici.
+                  {t("Visite, prenotazioni, referti, orari. Niente pareri medici.", "Visits, bookings, reports, hours. No medical advice.")}
                 </p>
               </div>
               <ul className="flex flex-col gap-2">
-                {starters.map((s) => (
+                {starters[lang].map((s) => (
                   <li key={s}>
                     <button type="button" onClick={() => ask(s)} className="hover:border-enamel hover:bg-enamel-soft w-full rounded-md border bg-white px-3 py-2 text-left text-sm transition-colors">
                       {s}
@@ -157,14 +168,14 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
           )}
           {waitingForFirstToken && (
             <div className="text-muted-foreground text-sm">
-              <Shimmer>Sto guardando…</Shimmer>
+              <Shimmer>{t("Sto guardando…", "Looking…")}</Shimmer>
             </div>
           )}
           {error && (
             <div role="alert" className="border-destructive/30 bg-destructive/5 rounded-md border p-3 text-sm">
-              <p>{errorText(error)}</p>
+              <p>{errorText(error, t("L'assistente non riesce a rispondere in questo momento.", "The assistant cannot answer right now."))}</p>
               <Button size="sm" variant="outline" className="mt-2" onClick={() => regenerate()}>
-                Riprova
+                {t("Riprova", "Try again")}
               </Button>
             </div>
           )}
@@ -180,7 +191,7 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
         }}
       >
         <label htmlFor="assistente-input" className="sr-only">
-          Scriva all’assistente
+          {t("Scriva all’assistente", "Write to the assistant")}
         </label>
         <div className="focus-within:border-enamel flex items-end gap-2 rounded-lg border px-3 py-2">
           <textarea
@@ -189,7 +200,7 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
             value={input}
             maxLength={MAX_LENGTH}
             rows={1}
-            placeholder="Scriva una domanda…"
+            placeholder={t("Scriva una domanda…", "Type a question…")}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
@@ -201,17 +212,19 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
           />
           {busy ? (
             <Button type="button" size="sm" variant="outline" onClick={() => stop()}>
-              Ferma
+              {t("Ferma", "Stop")}
             </Button>
           ) : (
             <Button type="submit" size="sm" disabled={!input.trim()}>
-              Invia
+              {t("Invia", "Send")}
             </Button>
           )}
         </div>
         <p className="text-muted-foreground mt-2 text-[11px] leading-snug">
-          Clinica inventata, a scopo didattico: le prenotazioni restano un esercizio, quindi nome ed email possono essere di
-          fantasia. L&apos;assistente dà informazioni organizzative, non pareri medici.
+          {t(
+            "Clinica inventata, a scopo didattico: le prenotazioni restano un esercizio, quindi nome ed email possono essere di fantasia. L'assistente dà informazioni organizzative, non pareri medici.",
+            "A made-up clinic, for teaching: bookings remain an exercise, so name and email can be made up. The assistant gives organisational information, not medical advice.",
+          )}
         </p>
       </form>
     </section>
@@ -228,6 +241,7 @@ function MessageView({
   onApproval: (id: string, approved: boolean) => void;
 }) {
   const isUser = message.role === "user";
+  const { t } = useI18n();
   const preamble = preambleTextIndexes(message);
   return (
     <Message from={message.role} className={cn(!isUser && "max-w-full")}>
@@ -269,7 +283,7 @@ function MessageView({
           }
         })}
         {!isUser && message.metadata?.model && (
-          <p className="text-muted-foreground text-[11px]">Risposta di {message.metadata.model}</p>
+          <p className="text-muted-foreground text-[11px]">{t("Risposta di", "Answer from")} {message.metadata.model}</p>
         )}
       </MessageContent>
     </Message>

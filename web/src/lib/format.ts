@@ -1,7 +1,10 @@
-const euro = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
+const euro = {
+  it: new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }),
+  en: new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR" }),
+};
 
-export function formatPrice(cents: number) {
-  return euro.format(cents / 100);
+export function formatPrice(cents: number, lang: "it" | "en" = "it") {
+  return euro[lang].format(cents / 100);
 }
 
 export const FREE_SHIPPING_THRESHOLD_CENTS = 4900;
@@ -20,8 +23,17 @@ export const orderStatusLabel: Record<string, string> = {
   annullato: "Annullato",
 };
 
-export function formatDateTime(iso: string) {
-  return new Intl.DateTimeFormat("it-IT", {
+export const orderStatusLabelEn: Record<string, string> = {
+  ricevuto: "Received",
+  in_preparazione: "Being prepared",
+  spedito: "Shipped",
+  in_consegna: "Out for delivery",
+  consegnato: "Delivered",
+  annullato: "Cancelled",
+};
+
+export function formatDateTime(iso: string, lang: "it" | "en" = "it") {
+  return new Intl.DateTimeFormat(lang === "en" ? "en-GB" : "it-IT", {
     day: "numeric",
     month: "long",
     hour: "2-digit",

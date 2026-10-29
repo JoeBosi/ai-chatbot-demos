@@ -4,12 +4,14 @@ import { ArrowUpIcon } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 
 import { useAssistant } from "@/components/assistant/assistant-provider";
+import { useI18n } from "@/components/lang-provider";
 import type { PageContext } from "@/lib/ai/instructions";
 import { cn } from "@/lib/utils";
 
 // A question box outside the panel: typing here opens the assistant with the question.
 export function AskBox({ placeholder, suggestions, className }: { placeholder: string; suggestions: string[]; className?: string }) {
   const { ask } = useAssistant();
+  const { t } = useI18n();
   const [value, setValue] = useState("");
   const inputId = useId();
   return (
@@ -24,7 +26,7 @@ export function AskBox({ placeholder, suggestions, className }: { placeholder: s
         className="focus-within:border-enamel flex items-center gap-2 rounded-full border-2 border-transparent bg-white p-1.5 pl-5 shadow-[0_2px_0_0_var(--enamel-deep)]"
       >
         <label htmlFor={inputId} className="sr-only">
-          Faccia una domanda all’assistente
+          {t("Faccia una domanda all’assistente", "Ask the assistant a question")}
         </label>
         <input
           id={inputId}
@@ -36,7 +38,7 @@ export function AskBox({ placeholder, suggestions, className }: { placeholder: s
         />
         <button
           type="submit"
-          aria-label="Chiedi"
+          aria-label={t("Chiedi", "Ask")}
           className="bg-enamel hover:bg-enamel-deep flex size-10 shrink-0 items-center justify-center rounded-full text-white transition-colors"
         >
           <ArrowUpIcon className="size-5" aria-hidden />

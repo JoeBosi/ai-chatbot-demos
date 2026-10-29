@@ -4,6 +4,7 @@ import { CheckIcon, ShoppingBagIcon } from "lucide-react";
 import { useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/components/lang-provider";
 import { useCart } from "@/components/shop/cart-provider";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +13,7 @@ export function AddToCartButton({
   inStock,
   size = "default",
   className,
-  label = "Aggiungi al carrello",
+  label,
 }: {
   slug: string;
   inStock: boolean;
@@ -21,6 +22,7 @@ export function AddToCartButton({
   label?: string;
 }) {
   const { update } = useCart();
+  const { t } = useI18n();
   const [pending, start] = useTransition();
   const [state, setState] = useState<"idle" | "added" | string>("idle");
 
@@ -46,7 +48,7 @@ export function AddToCartButton({
         }
       >
         {state === "added" ? <CheckIcon /> : <ShoppingBagIcon />}
-        {state === "added" ? "Aggiunto" : label}
+        {state === "added" ? t("Aggiunto", "Added") : (label ?? t("Aggiungi al carrello", "Add to cart"))}
       </Button>
       {state !== "idle" && state !== "added" && (
         <p role="alert" className="text-destructive text-xs">

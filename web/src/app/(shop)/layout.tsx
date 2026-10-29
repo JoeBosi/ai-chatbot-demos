@@ -6,9 +6,10 @@ import { CartProvider } from "@/components/shop/cart-provider";
 import { SiteFooter } from "@/components/shop/site-footer";
 import { SiteHeader } from "@/components/shop/site-header";
 import { getCart } from "@/lib/cart";
+import { getI18n } from "@/lib/i18n-server";
 
 export default async function ShopLayout({ children }: LayoutProps<"/">) {
-  const cart = await getCart();
+  const [cart, { t }] = await Promise.all([getCart(), getI18n()]);
   return (
     <ClientConfigProvider apiKey={process.env.WIDGET_PUBLIC_KEY}>
       <CartProvider initialCart={cart}>
@@ -17,7 +18,7 @@ export default async function ShopLayout({ children }: LayoutProps<"/">) {
             href="#contenuto"
             className="focus:bg-enamel sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:px-3 focus:py-2 focus:text-white"
           >
-            Vai al contenuto
+            {t("Vai al contenuto", "Skip to content")}
           </a>
           <SiteHeader />
           <main id="contenuto" className="flex-1">

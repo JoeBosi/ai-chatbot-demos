@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+
+import { useI18n } from "@/components/lang-provider";
 import { createContext, useContext, useMemo, type ComponentProps, type ReactNode } from "react";
 
 /**
@@ -44,8 +46,10 @@ export function useApiHeaders() {
 
 type ShopLinkProps = Omit<ComponentProps<typeof Link>, "href"> & { href: string };
 
-export function ShopLink({ href, children, onClick, ...props }: ShopLinkProps) {
+export function ShopLink({ href: path, children, onClick, ...props }: ShopLinkProps) {
   const embedded = useEmbedded();
+  // Links from the chat stay in the page language: /prodotti/x becomes /en/prodotti/x on the English site.
+  const href = useI18n().href(path);
   if (embedded) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" {...props}>

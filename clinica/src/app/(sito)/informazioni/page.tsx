@@ -1,16 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { infoSectionsEn } from "@/data/en/localize";
 import { listInfoDocs } from "@/lib/clinica";
-import { pageMeta } from "@/lib/seo";
+import { getI18n } from "@/lib/i18n-server";
+import { metaFor } from "@/lib/seo";
 
-export const metadata: Metadata = pageMeta("/informazioni", {
-  title: "Informazioni",
-  description: "Orari, pagamenti, documenti, preparazione agli esami, accessibilità e privacy: tutte le pagine informative.",
+export const generateMetadata: () => Promise<Metadata> = metaFor("/informazioni", {
+  it: {
+    title: "Informazioni",
+    description:
+      "Orari, pagamenti, documenti, preparazione agli esami, accessibilità e privacy: tutte le pagine informative.",
+  },
+  en: {
+    title: "Information",
+    description:
+      "Hours, payments, documents, test preparation, accessibility and privacy: all the information pages.",
+  },
 });
 
 export default async function InformazioniPage() {
-  const rows = await listInfoDocs();
+  const { t, href, lang } = await getI18n();
+  // Italian from the database; English from the translated pages, in the same order.
+  const rows = lang === "en" ? infoSectionsEn().sort((a, b) => a.docSlug.localeCompare(b.docSlug)) : await listInfoDocs();
 
   // Le righe arrivano già ordinate per documento e posizione: basta raggrupparle.
   const docs: { slug: string; title: string; sections: typeof rows }[] = [];
@@ -22,15 +34,17 @@ export default async function InformazioniPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="font-display text-4xl md:text-5xl">Informazioni</h1>
+      <h1 className="font-display text-4xl md:text-5xl">{t("Informazioni", "Information")}</h1>
       <p className="text-muted-foreground mt-3 text-lg leading-relaxed">
-        Tutto quello che serve sapere prima di venire: orari, pagamenti, documenti, preparazione agli esami,
-        accessibilità. Sono le stesse pagine che consulta l&apos;assistente.
+        {t(
+          "Tutto quello che serve sapere prima di venire: orari, pagamenti, documenti, preparazione agli esami, accessibilità. Sono le stesse pagine che consulta l'assistente.",
+          "Everything you need to know before coming: hours, payments, documents, test preparation, accessibility. These are the same pages the assistant reads (in their Italian original).",
+        )}
       </p>
 
       <nav aria-labelledby="indice" className="bg-card mt-8 rounded-lg border p-5">
         <h2 id="indice" className="font-display text-xl leading-none">
-          Indice
+          {t("Indice", "Contents")}
         </h2>
         <ol className="mt-3 grid gap-1 text-sm sm:grid-cols-2">
           {docs.map((doc) => (
@@ -58,16 +72,16 @@ export default async function InformazioniPage() {
               ))}
             </div>
             <a href="#indice" className="text-muted-foreground mt-5 inline-block text-xs underline decoration-dotted underline-offset-4">
-              Torna all&apos;indice
+              {t("Torna all'indice", "Back to contents")}
             </a>
           </section>
         ))}
       </div>
 
       <p className="text-muted-foreground mt-12 text-sm leading-relaxed">
-        Queste pagine descrivono una struttura inventata.{" "}
-        <Link href="/come-funziona" className="text-enamel underline decoration-dotted underline-offset-4">
-          Com&apos;è fatta questa demo
+        {t("Queste pagine descrivono una struttura inventata.", "These pages describe a made-up clinic.")}{" "}
+        <Link href={href("/come-funziona")} className="text-enamel underline decoration-dotted underline-offset-4">
+          {t("Com'è fatta questa demo", "How this demo works")}
         </Link>
       </p>
     </div>

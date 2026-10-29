@@ -8,6 +8,7 @@ import { Message, MessageContent, MessageResponse } from "@/components/ai-elemen
 import { Shimmer } from "@/components/assistant/shimmer";
 import { useAssistant } from "@/components/assistant/assistant-provider";
 import { useEmbedded } from "@/components/assistant/embed-context";
+import { useI18n } from "@/components/lang-provider";
 import {
   AddToCartPart,
   CompareProductsPart,
@@ -24,26 +25,35 @@ import { cn } from "@/lib/utils";
 
 const MAX_LENGTH = 1000;
 
-const starters = [
-  "Quale macchina espresso mi consigli per iniziare?",
-  "Che macinacaffè serve per la Vapora Classica?",
-  "Posso restituire un prodotto aperto?",
-  "Dov'è il mio ordine CF-10482? Email demo@cremaeferro.it",
-];
+const starters = {
+  it: [
+    "Quale macchina espresso mi consigli per iniziare?",
+    "Che macinacaffè serve per la Vapora Classica?",
+    "Posso restituire un prodotto aperto?",
+    "Dov'è il mio ordine CF-10482? Email demo@cremaeferro.it",
+  ],
+  en: [
+    "Which espresso machine do you recommend for a beginner?",
+    "Which grinder do I need for the Vapora Classica?",
+    "Can I return an opened product?",
+    "Where is my order CF-10482? Email demo@cremaeferro.it",
+  ],
+};
 
-function errorText(error: Error) {
+function errorText(error: Error, fallback: string) {
   try {
     const parsed = JSON.parse(error.message) as { error?: string };
     if (parsed.error) return parsed.error;
   } catch {
     /* not JSON */
   }
-  return error.message && error.message.length < 200 ? error.message : "Il Barista non riesce a rispondere in questo momento.";
+  return error.message && error.message.length < 200 ? error.message : fallback;
 }
 
 export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
   const { open, setOpen, messages, status, error, ask, reset, regenerate, stop, addToolApprovalResponse, pageContext } = useAssistant();
   const embedded = useEmbedded();
+  const { t, lang } = useI18n();
   const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -90,7 +100,7 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
     <section
       ref={panelRef}
       role="dialog"
-      aria-label="Il Barista, assistente del negozio"
+      aria-label={t("Il Barista, assistente del negozio", "The Barista, the shop assistant")}
       className={cn(
         "bg-background flex flex-col",
         embedded
@@ -105,15 +115,15 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
         <div className="min-w-0 flex-1">
           <p className="font-display text-xl leading-none">Il Barista</p>
           <p className="truncate text-xs text-white/70">
-            {pageContext.productName ? `Stai guardando: ${pageContext.productName}` : "Consigli, ordini e assistenza"}
+            {pageContext.productName ? t(`Stai guardando: ${pageContext.productName}`, `Looking at: ${pageContext.productName}`) : t("Consigli, ordini e assistenza", "Advice, orders and support")}
           </p>
         </div>
         {messages.length > 0 && (
-          <Button size="icon-sm" variant="ghost" className="text-white hover:bg-white/10 hover:text-white" onClick={reset} aria-label="Nuova conversazione" title="Nuova conversazione">
+          <Button size="icon-sm" variant="ghost" className="text-white hover:bg-white/10 hover:text-white" onClick={reset} aria-label={t("Nuova conversazione", "New conversation")} title={t("Nuova conversazione", "New conversation")}>
             <RotateCcwIcon />
           </Button>
         )}
-        <Button size="icon-sm" variant="ghost" className="text-white hover:bg-white/10 hover:text-white" onClick={close} aria-label="Chiudi l'assistente">
+        <Button size="icon-sm" variant="ghost" className="text-white hover:bg-white/10 hover:text-white" onClick={close} aria-label={t("Chiudi l'assistente", "Close the assistant")}>
           <XIcon />
         </Button>
       </header>
@@ -123,13 +133,13 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
           {messages.length === 0 ? (
             <div className="flex flex-col gap-4">
               <div>
-                <p className="font-display text-2xl leading-tight">Ciao, cosa prepariamo oggi?</p>
+                <p className="font-display text-2xl leading-tight">{t("Ciao, cosa prepariamo oggi?", "Hi, what are we making today?")}</p>
                 <p className="text-muted-foreground mt-1 text-sm">
-                  Consigli, carrello, ordini e assistenza.
+                  {t("Consigli, carrello, ordini e assistenza.", "Advice, cart, orders and support.")}
                 </p>
               </div>
               <ul className="flex flex-col gap-2">
-                {starters.map((s) => (
+                {starters[lang].map((s) => (
                   <li key={s}>
                     <button type="button" onClick={() => ask(s)} className="hover:border-enamel hover:bg-enamel-soft w-full rounded-md border bg-white px-3 py-2 text-left text-sm transition-colors">
                       {s}
@@ -150,14 +160,14 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
           )}
           {waitingForFirstToken && (
             <div className="text-muted-foreground text-sm">
-              <Shimmer>Il Barista sta pensando…</Shimmer>
+              <Shimmer>{t("Il Barista sta pensando…", "The Barista is thinking…")}</Shimmer>
             </div>
           )}
           {error && (
             <div role="alert" className="border-destructive/30 bg-destructive/5 rounded-md border p-3 text-sm">
-              <p>{errorText(error)}</p>
+              <p>{errorText(error, t("Il Barista non riesce a rispondere in questo momento.", "The Barista cannot answer right now."))}</p>
               <Button size="sm" variant="outline" className="mt-2" onClick={() => regenerate()}>
-                Riprova
+                {t("Riprova", "Try again")}
               </Button>
             </div>
           )}
@@ -173,7 +183,7 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
         }}
       >
         <label htmlFor="barista-input" className="sr-only">
-          Scrivi al Barista
+          {t("Scrivi al Barista", "Write to the Barista")}
         </label>
         <div className="focus-within:border-enamel flex items-end gap-2 rounded-lg border px-3 py-2">
           <textarea
@@ -182,7 +192,7 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
             value={input}
             maxLength={MAX_LENGTH}
             rows={1}
-            placeholder="Scrivi una domanda…"
+            placeholder={t("Scrivi una domanda…", "Type a question…")}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
@@ -194,16 +204,19 @@ export function AssistantPanel({ hostOrigin }: { hostOrigin?: string }) {
           />
           {busy ? (
             <Button type="button" size="sm" variant="outline" onClick={() => stop()}>
-              Ferma
+              {t("Ferma", "Stop")}
             </Button>
           ) : (
             <Button type="submit" size="sm" disabled={!input.trim()}>
-              Invia
+              {t("Invia", "Send")}
             </Button>
           )}
         </div>
         <p className="text-muted-foreground mt-2 text-[11px] leading-snug">
-          Demo con modelli AI gratuiti: le risposte possono contenere errori. Le conversazioni vengono salvate per migliorare la demo, non inserire dati personali reali.
+          {t(
+            "Demo con modelli AI gratuiti: le risposte possono contenere errori. Le conversazioni vengono salvate per migliorare la demo, non inserire dati personali reali.",
+            "Demo with free AI models: answers may contain mistakes. Conversations are saved to improve the demo, so do not enter real personal data.",
+          )}
         </p>
       </form>
     </section>
@@ -220,6 +233,7 @@ function MessageView({
   onApproval: (id: string, approved: boolean) => void;
 }) {
   const isUser = message.role === "user";
+  const { t } = useI18n();
   const preamble = preambleTextIndexes(message);
   return (
     <Message from={message.role} className={cn(!isUser && "max-w-full")}>
@@ -257,7 +271,7 @@ function MessageView({
           }
         })}
         {!isUser && message.metadata?.model && (
-          <p className="text-muted-foreground text-[11px]">Risposta di {message.metadata.model}</p>
+          <p className="text-muted-foreground text-[11px]">{t("Risposta di", "Answer from")} {message.metadata.model}</p>
         )}
       </MessageContent>
     </Message>

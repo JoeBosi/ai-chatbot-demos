@@ -2,30 +2,38 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { durata, iniziali, prezzo, refertoLabel, tipoLabel } from "@/app/(sito)/_shared";
+import { fmt, iniziali } from "@/app/(sito)/_shared";
 import { Button } from "@/components/ui/button";
 import { doctorSchedule } from "@/lib/agenda";
 import { getSpeciality, listDoctors, listServices } from "@/lib/clinica";
+import { lDoctor, lService, lSpeciality } from "@/data/en/localize";
+import { getI18n, getLang } from "@/lib/i18n-server";
 import { pageMeta } from "@/lib/seo";
 
 export async function generateMetadata({ params }: PageProps<"/specialita/[slug]">): Promise<Metadata> {
-  const speciality = await getSpeciality((await params).slug);
-  return speciality ? pageMeta(`/specialita/${speciality.slug}`, { title: speciality.name, description: speciality.summary }) : {};
+  const [found, lang] = await Promise.all([getSpeciality((await params).slug), getLang()]);
+  if (!found) return {};
+  const speciality = lSpeciality(lang, found);
+  return pageMeta(lang, `/specialita/${speciality.slug}`, { title: speciality.name, description: speciality.summary });
 }
 
 export default async function SpecialitaDetailPage({ params }: PageProps<"/specialita/[slug]">) {
   const { slug } = await params;
-  const speciality = await getSpeciality(slug);
-  if (!speciality) notFound();
+  const [found, { t, href, lang }] = await Promise.all([getSpeciality(slug), getI18n()]);
+  if (!found) notFound();
+  const speciality = lSpeciality(lang, found);
+  const { durata, prezzo, refertoLabel, tipoLabel, giorno } = fmt(lang);
 
-  const [services, doctors] = await Promise.all([listServices({ speciality: slug }), listDoctors({ speciality: slug })]);
+  const [itServices, itDoctors] = await Promise.all([listServices({ speciality: slug }), listDoctors({ speciality: slug })]);
+  const services = itServices.map((s) => lService(lang, s));
+  const doctors = itDoctors.map((d) => lDoctor(lang, d));
   const schedules = await Promise.all(doctors.map((d) => doctorSchedule(d.slug)));
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <nav aria-label="Percorso" className="text-muted-foreground text-sm">
-        <Link href="/specialita" className="hover:text-foreground">
-          Specialità
+      <nav aria-label={t("Percorso", "Breadcrumb")} className="text-muted-foreground text-sm">
+        <Link href={href("/specialita")} className="hover:text-foreground">
+          {t("Specialità", "Specialties")}
         </Link>
         {" / "}
         <span>{speciality.name}</span>
@@ -37,39 +45,43 @@ export default async function SpecialitaDetailPage({ params }: PageProps<"/speci
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Button asChild>
-          <Link href={`/prestazioni?specialita=${speciality.slug}`}>Vedi le prestazioni</Link>
+          <Link href={href(`/prestazioni?specialita=${speciality.slug}`)}>{t("Vedi le prestazioni", "See the services")}</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link href="/prenota">Prenota un appuntamento</Link>
+          <Link href={href("/prenota")}>{t("Prenota un appuntamento", "Book an appointment")}</Link>
         </Button>
       </div>
 
       <section className="mt-12" aria-labelledby="prestazioni">
         <h2 id="prestazioni" className="font-display text-3xl">
-          Visite ed esami di {speciality.name.toLowerCase()}
+          {t(`Visite ed esami di ${speciality.name.toLowerCase()}`, `${speciality.name}: visits and tests`)}
         </h2>
         {services.length === 0 ? (
-          <p className="text-muted-foreground mt-3">Per questa specialità non c&apos;è ancora nulla di prenotabile online.</p>
+          <p className="text-muted-foreground mt-3">
+            {t("Per questa specialità non c'è ancora nulla di prenotabile online.", "Nothing can be booked online for this specialty yet.")}
+          </p>
         ) : (
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[40rem] border-separate border-spacing-0 text-sm">
-              <caption className="sr-only">Prestazioni di {speciality.name} con durata, costo e tempi di referto</caption>
+              <caption className="sr-only">
+                {t(`Prestazioni di ${speciality.name} con durata, costo e tempi di referto`, `${speciality.name} services with duration, cost and report times`)}
+              </caption>
               <thead>
                 <tr className="text-muted-foreground text-left text-xs tracking-[0.12em] uppercase">
                   <th scope="col" className="border-b py-2 pr-3 font-semibold">
-                    Prestazione
+                    {t("Prestazione", "Service")}
                   </th>
                   <th scope="col" className="border-b py-2 pr-3 font-semibold">
-                    Tipo
+                    {t("Tipo", "Type")}
                   </th>
                   <th scope="col" className="border-b py-2 pr-3 font-semibold">
-                    Durata
+                    {t("Durata", "Duration")}
                   </th>
                   <th scope="col" className="border-b py-2 pr-3 font-semibold">
-                    Costo
+                    {t("Costo", "Cost")}
                   </th>
                   <th scope="col" className="border-b py-2 font-semibold">
-                    Referto
+                    {t("Referto", "Report")}
                   </th>
                 </tr>
               </thead>
@@ -77,7 +89,7 @@ export default async function SpecialitaDetailPage({ params }: PageProps<"/speci
                 {services.map((s) => (
                   <tr key={s.slug} className="align-top">
                     <td className="border-b py-3 pr-3">
-                      <Link href={`/prestazioni/${s.slug}`} className="hover:text-enamel font-semibold underline decoration-dotted underline-offset-4">
+                      <Link href={href(`/prestazioni/${s.slug}`)} className="hover:text-enamel font-semibold underline decoration-dotted underline-offset-4">
                         {s.name}
                       </Link>
                     </td>
@@ -95,7 +107,7 @@ export default async function SpecialitaDetailPage({ params }: PageProps<"/speci
 
       <section className="mt-12" aria-labelledby="medici">
         <h2 id="medici" className="font-display text-3xl">
-          Chi riceve
+          {t("Chi riceve", "Who sees patients")}
         </h2>
         <ul className="mt-4 grid gap-4 md:grid-cols-2">
           {doctors.map((d, i) => (
@@ -109,14 +121,14 @@ export default async function SpecialitaDetailPage({ params }: PageProps<"/speci
               </span>
               <div className="min-w-0">
                 <p className="font-display text-xl leading-tight">
-                  <Link href={`/medici/${d.slug}`} className="hover:text-enamel">
+                  <Link href={href(`/medici/${d.slug}`)} className="hover:text-enamel">
                     {d.name}
                   </Link>
                 </p>
                 <p className="text-muted-foreground mt-1 text-sm">
                   {schedules[i].length === 0
-                    ? "Orari non pubblicati."
-                    : schedules[i].map((t) => `${t.weekdayName} ${t.from}-${t.to}`).join(" · ")}
+                    ? t("Orari non pubblicati.", "Hours not published.")
+                    : schedules[i].map((sh) => `${giorno(sh.weekday)} ${sh.from}-${sh.to}`).join(" · ")}
                 </p>
               </div>
             </li>

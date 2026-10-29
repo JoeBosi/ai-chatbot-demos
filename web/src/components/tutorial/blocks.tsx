@@ -33,13 +33,15 @@ export function Sezione({
 export function Prova({
   titolo,
   children,
+  lang = "it",
 }: {
   titolo: string;
   children: ReactNode;
+  lang?: "it" | "en";
 }) {
   return (
     <div className="bg-enamel-soft/70 border-enamel/20 rounded-lg border p-4">
-      <p className="text-enamel-deep font-semibold">Prova tu: {titolo}</p>
+      <p className="text-enamel-deep font-semibold">{lang === "en" ? "Try it: " : "Prova tu: "}{titolo}</p>
       <div className="mt-2 flex flex-col gap-2 text-[15px]">{children}</div>
     </div>
   );
@@ -54,11 +56,11 @@ export function Nota({ children }: { children: ReactNode }) {
 }
 
 /** A warning that costs money, data or downtime if ignored. */
-export function Attenzione({ children }: { children: ReactNode }) {
+export function Attenzione({ children, lang = "it" }: { children: ReactNode; lang?: "it" | "en" }) {
   return (
     <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
       <p className="text-[15px] leading-relaxed">
-        <strong>Attenzione. </strong>
+        <strong>{lang === "en" ? "Warning. " : "Attenzione. "}</strong>
         {children}
       </p>
     </div>
@@ -67,12 +69,15 @@ export function Attenzione({ children }: { children: ReactNode }) {
 
 export function Indice({
   voci,
+  lang = "it",
 }: {
   voci: { id: string; titolo: string; livello?: string }[];
+  lang?: "it" | "en";
 }) {
+  const label = lang === "en" ? "Contents" : "Indice";
   return (
-    <nav aria-label="Indice" className="bg-card mt-10 rounded-lg border p-4">
-      <p className="font-display text-xl">Indice</p>
+    <nav aria-label={label} className="bg-card mt-10 rounded-lg border p-4">
+      <p className="font-display text-xl">{label}</p>
       <ol className="mt-2 flex flex-col gap-1.5 text-[15px]">
         {voci.map((v) => (
           <li key={v.id} className="flex items-baseline justify-between gap-3">

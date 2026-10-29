@@ -1,10 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { pageMeta } from "@/lib/seo";
+import { getLang } from "@/lib/i18n-server";
+import { metaFor } from "@/lib/seo";
 
-export const metadata: Metadata = pageMeta("/crediti", {
-  title: "Crediti e licenze",
-  description: "Chi ha realizzato questo sito didattico, con quali strumenti liberi, e con quali licenze si possono riusare testi e codice.",
+import { CreditiEn } from "./contenuto-en";
+
+export const generateMetadata: () => Promise<Metadata> = metaFor("/crediti", {
+  it: {
+    title: "Crediti e licenze",
+    description:
+      "Chi ha realizzato questo sito didattico, con quali strumenti liberi, e con quali licenze si possono riusare testi e codice.",
+  },
+  en: {
+    title: "Credits and licences",
+    description:
+      "Who made this teaching site, with which free tools, and under which licences texts and code can be reused.",
+  },
 });
 
 const strumenti: [string, string, string][] = [
@@ -21,7 +32,7 @@ const strumenti: [string, string, string][] = [
   ["Docker e Caddy", "la pubblicazione: due container su un server in Europa, HTTPS automatico", "https://caddyserver.com/docs"],
 ];
 
-export default function CreditiPage() {
+function CreditiPageIt() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="font-display text-4xl md:text-5xl">Crediti e licenze</h1>
@@ -106,4 +117,8 @@ export default function CreditiPage() {
       </section>
     </div>
   );
+}
+
+export default async function CreditiPage() {
+  return (await getLang()) === "en" ? <CreditiEn /> : <CreditiPageIt />;
 }

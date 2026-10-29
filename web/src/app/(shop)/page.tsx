@@ -5,13 +5,21 @@ import { AskBox, AskChip } from "@/components/assistant/ask";
 import { ProductArt } from "@/components/shop/product-art";
 import { ProductCard } from "@/components/shop/product-card";
 import { categories } from "@/data/catalog";
+import { localizeCategory } from "@/data/en/catalog";
 import { searchProducts } from "@/lib/catalog";
-import { pageMeta } from "@/lib/seo";
+import { getI18n } from "@/lib/i18n-server";
+import { metaFor } from "@/lib/seo";
 
-export const metadata: Metadata = pageMeta("/", {
-  title: { absolute: "Crema & Ferro — attrezzatura per il caffè (demo)" },
-  description:
-    "Negozio dimostrativo con un assistente AI per gli acquisti: consigli sui prodotti, carrello, stato degli ordini e assistenza.",
+export const generateMetadata: () => Promise<Metadata> = metaFor("/", {
+  it: {
+    title: { absolute: "Crema & Ferro — attrezzatura per il caffè (demo)" },
+    description:
+      "Negozio dimostrativo con un assistente AI per gli acquisti: consigli sui prodotti, carrello, stato degli ordini e assistenza.",
+  },
+  en: {
+    title: { absolute: "Crema & Ferro — coffee gear (demo)" },
+    description: "A demo shop with an AI shopping assistant: product advice, cart, order status and support.",
+  },
 });
 
 const categoryArt: Record<string, { art: string; color: string }> = {
@@ -22,54 +30,83 @@ const categoryArt: Record<string, { art: string; color: string }> = {
   accessori: { art: "scale", color: "#2b2f33" },
 };
 
-const questionGroups = [
-  {
-    title: "Scegliere",
-    questions: [
-      "Ho 400 € e bevo soprattutto cappuccini: cosa mi consigli?",
-      "Un caffè fruttato per il filtro?",
-    ],
-  },
-  {
-    title: "Confrontare",
-    questions: ["Differenze tra Brenta PID e Brenta Duo?", "Macinaverde Micro o Brenta Piatta 64 per l'espresso?"],
-  },
-  {
-    title: "Ordini",
-    questions: ["Dov'è l'ordine CF-10482? Email demo@cremaeferro.it", "Aggiungi al carrello una Moka Inox 6 tazze"],
-  },
-  {
-    title: "Assistenza",
-    questions: ["Posso restituire una macchina già usata?", "La mia macchina perde acqua dal gruppo, cosa faccio?"],
-  },
-];
+const questionGroups = {
+  it: [
+    {
+      title: "Scegliere",
+      questions: ["Ho 400 € e bevo soprattutto cappuccini: cosa mi consigli?", "Un caffè fruttato per il filtro?"],
+    },
+    {
+      title: "Confrontare",
+      questions: ["Differenze tra Brenta PID e Brenta Duo?", "Macinaverde Micro o Brenta Piatta 64 per l'espresso?"],
+    },
+    {
+      title: "Ordini",
+      questions: ["Dov'è l'ordine CF-10482? Email demo@cremaeferro.it", "Aggiungi al carrello una Moka Inox 6 tazze"],
+    },
+    {
+      title: "Assistenza",
+      questions: ["Posso restituire una macchina già usata?", "La mia macchina perde acqua dal gruppo, cosa faccio?"],
+    },
+  ],
+  en: [
+    {
+      title: "Choose",
+      questions: ["I have 400 € and mostly drink cappuccinos: what do you recommend?", "A fruity coffee for filter?"],
+    },
+    {
+      title: "Compare",
+      questions: ["Differences between Brenta PID and Brenta Duo?", "Macinaverde Micro or Brenta Piatta 64 for espresso?"],
+    },
+    {
+      title: "Orders",
+      questions: ["Where is order CF-10482? Email demo@cremaeferro.it", "Add a Moka Inox 6 cups to the cart"],
+    },
+    {
+      title: "Support",
+      questions: ["Can I return a machine I have already used?", "My machine leaks water from the group head, what should I do?"],
+    },
+  ],
+};
 
 export default async function Home() {
-  const bestSellers = await searchProducts({ sort: "rating", inStockOnly: true, limit: 8 });
+  const [bestSellers, { t, href, lang }] = await Promise.all([searchProducts({ sort: "rating", inStockOnly: true, limit: 8 }), getI18n()]);
 
   return (
     <>
       <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-10 pb-16 md:grid-cols-[1.15fr_1fr] md:pt-16">
         <div>
           <h1 className="font-display text-5xl leading-[1.02] tracking-tight text-balance md:text-7xl">
-            Il caffè di casa, come al banco.
+            {t("Il caffè di casa, come al banco.", "Coffee at home, as good as at the bar.")}
           </h1>
           <p className="text-muted-foreground mt-5 max-w-xl text-lg">
-            Macchine, macinacaffè e tostature fresche. Se non sai da dove partire, chiedi al Barista: conosce il catalogo, i tuoi ordini e le regole del negozio.
+            {t(
+              "Macchine, macinacaffè e tostature fresche. Se non sai da dove partire, chiedi al Barista: conosce il catalogo, i tuoi ordini e le regole del negozio.",
+              "Machines, grinders and fresh roasts. If you don't know where to start, ask the Barista: it knows the catalogue, your orders and the shop's rules.",
+            )}
           </p>
           <AskBox
             className="mt-8 max-w-xl"
-            placeholder="Chiedi al Barista…"
-            suggestions={["Mi serve un macinacaffè?", "Spedite in Sicilia?", "Qual è il caffè più dolce?"]}
+            placeholder={t("Chiedi al Barista…", "Ask the Barista…")}
+            suggestions={
+              lang === "en"
+                ? ["Do I need a grinder?", "Do you ship to Sicily?", "Which is the sweetest coffee?"]
+                : ["Mi serve un macinacaffè?", "Spedite in Sicilia?", "Qual è il caffè più dolce?"]
+            }
           />
         </div>
         <div className="bg-enamel-deep relative overflow-hidden rounded-2xl p-6 text-white md:p-8">
-          <ProductArt art="espresso-dual" color="#1f5c4a" className="rounded-xl bg-white/95" title="Macchina espresso a doppia caldaia" />
+          <ProductArt art="espresso-dual" color="#1f5c4a" className="rounded-xl bg-white/95" title={t("Macchina espresso a doppia caldaia", "Dual-boiler espresso machine")} />
           <figure className="mt-5 space-y-3 text-sm">
-            <figcaption className="sr-only">Esempio di conversazione con il Barista</figcaption>
-            <p className="ml-auto w-fit max-w-[85%] rounded-lg rounded-br-sm bg-white/15 px-3 py-2">Faccio tre cappuccini al giorno, la Vapora Mini basta?</p>
+            <figcaption className="sr-only">{t("Esempio di conversazione con il Barista", "Sample conversation with the Barista")}</figcaption>
+            <p className="ml-auto w-fit max-w-[85%] rounded-lg rounded-br-sm bg-white/15 px-3 py-2">
+              {t("Faccio tre cappuccini al giorno, la Vapora Mini basta?", "I make three cappuccinos a day, is the Vapora Mini enough?")}
+            </p>
             <p className="w-fit max-w-[90%] rounded-lg rounded-bl-sm bg-white px-3 py-2 text-ink">
-              Per il latte la sua lancia panarello funziona, ma non fa latte art. Se vuoi una schiuma setosa guarda la Vapora Classica: 349 €, lancia a doppio foro.
+              {t(
+                "Per il latte la sua lancia panarello funziona, ma non fa latte art. Se vuoi una schiuma setosa guarda la Vapora Classica: 349 €, lancia a doppio foro.",
+                "Its panarello wand works for milk, but it can't do latte art. For silky foam look at the Vapora Classica: 349 €, two-hole steam wand.",
+              )}
             </p>
           </figure>
         </div>
@@ -78,12 +115,12 @@ export default async function Home() {
       <section aria-labelledby="categorie" className="border-y bg-white">
         <div className="mx-auto max-w-6xl px-4 py-10">
           <h2 id="categorie" className="sr-only">
-            Categorie
+            {t("Categorie", "Categories")}
           </h2>
           <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            {categories.map((c) => (
+            {categories.map((original) => localizeCategory(lang, original)).map((c) => (
               <li key={c.slug}>
-                <Link href={`/prodotti?categoria=${c.slug}`} className="group flex items-center gap-3">
+                <Link href={href(`/prodotti?categoria=${c.slug}`)} className="group flex items-center gap-3">
                   <div className="w-16 shrink-0 overflow-hidden rounded-md">
                     <ProductArt art={categoryArt[c.slug].art} color={categoryArt[c.slug].color} title={c.name} />
                   </div>
@@ -101,10 +138,10 @@ export default async function Home() {
       <section aria-labelledby="piu-scelti" className="mx-auto max-w-6xl px-4 pt-16">
         <div className="flex items-end justify-between gap-4">
           <h2 id="piu-scelti" className="font-display text-4xl">
-            I più apprezzati
+            {t("I più apprezzati", "Top rated")}
           </h2>
-          <Link href="/prodotti" className="text-enamel text-sm font-medium underline-offset-4 hover:underline">
-            Tutto il catalogo
+          <Link href={href("/prodotti")} className="text-enamel text-sm font-medium underline-offset-4 hover:underline">
+            {t("Tutto il catalogo", "Full catalogue")}
           </Link>
         </div>
         <div className="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
@@ -117,13 +154,16 @@ export default async function Home() {
       <section aria-labelledby="domande" className="mx-auto mt-20 max-w-6xl px-4">
         <div className="bg-enamel-soft rounded-2xl px-6 py-10 md:px-10">
           <h2 id="domande" className="font-display max-w-2xl text-4xl leading-tight">
-            Chiedi quello che chiederesti al banco
+            {t("Chiedi quello che chiederesti al banco", "Ask what you would ask at the counter")}
           </h2>
           <p className="text-muted-foreground mt-3 max-w-2xl">
-            Il Barista cerca nel catalogo, confronta, aggiunge al carrello, controlla gli ordini e apre richieste di assistenza. Prova una di queste domande.
+            {t(
+              "Il Barista cerca nel catalogo, confronta, aggiunge al carrello, controlla gli ordini e apre richieste di assistenza. Prova una di queste domande.",
+              "The Barista searches the catalogue, compares, adds to the cart, checks orders and opens support requests. Try one of these questions.",
+            )}
           </p>
           <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {questionGroups.map((g) => (
+            {questionGroups[lang].map((g) => (
               <div key={g.title}>
                 <h3 className="text-enamel-deep mb-3 font-semibold">{g.title}</h3>
                 <ul className="flex flex-col gap-2">
@@ -139,13 +179,20 @@ export default async function Home() {
         </div>
       </section>
 
-      <section aria-label="Servizi" className="mx-auto mt-16 grid max-w-6xl gap-6 px-4 sm:grid-cols-3">
-        {[
-          { title: "Spedizione gratuita da 49 €", text: "Consegna in 24-48 ore nel Centro-Nord, 48-72 ore al Sud e nelle isole." },
-          { title: "30 giorni per il reso", text: "Anche con la confezione aperta, purché il prodotto sia integro." },
-          { title: "Garanzia fino a 3 anni", text: "Ritiro e riconsegna gratuiti per le riparazioni in garanzia." },
-        ].map((s) => (
-          <Link key={s.title} href="/assistenza" className="group border-t-2 border-ink pt-4">
+      <section aria-label={t("Servizi", "Services")} className="mx-auto mt-16 grid max-w-6xl gap-6 px-4 sm:grid-cols-3">
+        {(lang === "en"
+          ? [
+              { title: "Free shipping from 49 €", text: "Delivery in 24-48 hours in Central and Northern Italy, 48-72 hours in the South and the islands." },
+              { title: "30 days to return", text: "Even with the box opened, as long as the product is undamaged." },
+              { title: "Warranty up to 3 years", text: "Free pick-up and return for repairs under warranty." },
+            ]
+          : [
+              { title: "Spedizione gratuita da 49 €", text: "Consegna in 24-48 ore nel Centro-Nord, 48-72 ore al Sud e nelle isole." },
+              { title: "30 giorni per il reso", text: "Anche con la confezione aperta, purché il prodotto sia integro." },
+              { title: "Garanzia fino a 3 anni", text: "Ritiro e riconsegna gratuiti per le riparazioni in garanzia." },
+            ]
+        ).map((s) => (
+          <Link key={s.title} href={href("/assistenza")} className="group border-t-2 border-ink pt-4">
             <p className="group-hover:text-enamel font-semibold">{s.title}</p>
             <p className="text-muted-foreground mt-1 text-sm">{s.text}</p>
           </Link>

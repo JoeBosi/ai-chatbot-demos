@@ -1,13 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { pageMeta } from "@/lib/seo";
+import { getLang } from "@/lib/i18n-server";
+import { metaFor } from "@/lib/seo";
 
-export const metadata: Metadata = pageMeta("/privacy", {
-  title: "Privacy",
-  description: "Quali dati passano da questo sito didattico, dove vanno e per quanto tempo restano. Breve e senza giri di parole.",
+import { PrivacyEn } from "./contenuto-en";
+
+export const generateMetadata: () => Promise<Metadata> = metaFor("/privacy", {
+  it: {
+    title: "Privacy",
+    description:
+      "Quali dati passano da questo sito didattico, dove vanno e per quanto tempo restano. Breve e senza giri di parole.",
+  },
+  en: {
+    title: "Privacy",
+    description:
+      "What data passes through this teaching site, where it goes and how long it stays. Short and plain.",
+  },
 });
 
-export default function PrivacyPage() {
+function PrivacyPageIt() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="font-display text-4xl md:text-5xl">Privacy</h1>
@@ -89,4 +100,8 @@ export default function PrivacyPage() {
       </section>
     </div>
   );
+}
+
+export default async function PrivacyPage() {
+  return (await getLang()) === "en" ? <PrivacyEn /> : <PrivacyPageIt />;
 }

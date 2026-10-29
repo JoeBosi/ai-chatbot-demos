@@ -4,16 +4,20 @@
 // Each text block is held back until its opening is known: reasoning goes out as a reasoning part,
 // which the panel does not show. If the last step ends with no real text and nothing waits for the
 // patient's click, a courtesy line is added, so the bubble is never empty.
+export const EMPTY_REPLY_TEXT_EN =
+  "I couldn't put the answer together. Could you try again or rephrase the question? The doctors' hours are also on the Doctors page.";
+
 export const EMPTY_REPLY_TEXT =
   "Non sono riuscito a formulare la risposta. Può riprovare o riformulare la domanda? Gli orari dei medici sono anche nella pagina Medici.";
 
+// Only openings no real answer would use: English answers may well start with "Okay" or "Based on".
 const LEAKED_REASONING =
-  /^\s*(the user|user (is|asks|wants)|i need|i should|i'll|i will|let me|let's|okay|ok,|we need|now,? i|first,|looking at|based on|il paziente (chiede|vuole|sta)|l'utente|devo |ora devo)/i;
+  /^\s*(the user|user (is|asks|wants)|i need to|i should (call|check|use|search)|let me (check|look|search|call|find|see|use)|we need to|now,? i (need|will|should)|looking at the (data|tool|results|output)|il (paziente|cliente) (chiede|vuole|sta)|l'utente|devo |ora devo)/i;
 const DECIDE_AFTER = 60;
 
 type Part = { type: string; id?: string; text?: string };
 
-export function guardEmptyReply<T extends Part>(): TransformStream<T, T> {
+export function guardEmptyReply<T extends Part>(courtesy = EMPTY_REPLY_TEXT): TransformStream<T, T> {
   let textInStep = false;
   let waitsForApproval = false;
   // Text blocks still being judged, and the verdict for those already judged.
@@ -71,7 +75,7 @@ export function guardEmptyReply<T extends Part>(): TransformStream<T, T> {
           if (!textInStep && !waitsForApproval) {
             const fid = "empty-reply";
             emit(controller, { type: "text-start", id: fid });
-            emit(controller, { type: "text-delta", id: fid, text: EMPTY_REPLY_TEXT });
+            emit(controller, { type: "text-delta", id: fid, text: courtesy });
             emit(controller, { type: "text-end", id: fid });
           }
           break;

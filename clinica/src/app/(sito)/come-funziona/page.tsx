@@ -1,11 +1,22 @@
 import { AlertTriangleIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { pageMeta } from "@/lib/seo";
+import { getLang } from "@/lib/i18n-server";
+import { metaFor } from "@/lib/seo";
 
-export const metadata: Metadata = pageMeta("/come-funziona", {
-  title: "Com'è fatta questa demo",
-  description: "Cosa è vero e cosa è inventato in questo poliambulatorio dimostrativo, cosa l'assistente non fa e che dati vengono conservati.",
+import { ComeFunzionaEn } from "./contenuto-en";
+
+export const generateMetadata: () => Promise<Metadata> = metaFor("/come-funziona", {
+  it: {
+    title: "Com'è fatta questa demo",
+    description:
+      "Cosa è vero e cosa è inventato in questo poliambulatorio dimostrativo, cosa l'assistente non fa e che dati vengono conservati.",
+  },
+  en: {
+    title: "How this demo works",
+    description:
+      "What is real and what is made up in this demo clinic, what the assistant does not do and what data is kept.",
+  },
 });
 
 const veri = [
@@ -34,7 +45,7 @@ const finti = [
   ],
 ];
 
-export default function ComeFunzionaPage() {
+function ComeFunzionaPageIt() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="font-display text-4xl md:text-5xl">Com&apos;è fatta questa demo</h1>
@@ -107,7 +118,7 @@ export default function ComeFunzionaPage() {
           Che modello usa
         </h2>
         <p className="mt-4 leading-relaxed">
-          Le risposte arrivano da un modello linguistico servito attraverso il router gratuito di{" "}
+          Le risposte arrivano da modelli linguistici gratuiti di{" "}
           <a
             href="https://openrouter.ai"
             className="text-enamel underline decoration-dotted underline-offset-4"
@@ -116,8 +127,9 @@ export default function ComeFunzionaPage() {
           >
             OpenRouter
           </a>
-          . È gratuito e con un tetto di richieste giornaliere: se la demo è molto visitata l&apos;assistente può
-          rallentare o rifiutare di rispondere, e il modello effettivo può cambiare.
+          : prima <code>nvidia/nemotron-3-ultra-550b-a55b:free</code>, e quando è occupato un modello di riserva e poi il
+          router gratuito. Sono gratuiti e con un tetto di richieste giornaliere: se la demo è molto visitata l&apos;assistente
+          può rallentare o rifiutare di rispondere, e il modello effettivo può cambiare.
         </p>
         <p className="text-muted-foreground mt-3 leading-relaxed">
           Un modello linguistico <strong>può sbagliare</strong>: può capire male una richiesta o riassumere in modo
@@ -195,4 +207,8 @@ export default function ComeFunzionaPage() {
       </section>
     </div>
   );
+}
+
+export default async function ComeFunzionaPage() {
+  return (await getLang()) === "en" ? <ComeFunzionaEn /> : <ComeFunzionaPageIt />;
 }

@@ -3,11 +3,13 @@
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useState } from "react";
 
+import { useI18n } from "@/components/lang-provider";
 import { cn } from "@/lib/utils";
 
 /** Code the reader is meant to copy: the file name says where it goes in the project. */
 export function CodeBlock({ code, file, className }: { code: string; file?: string; className?: string }) {
   const [copied, setCopied] = useState(false);
+  const { t } = useI18n();
 
   const copy = async () => {
     try {
@@ -27,10 +29,10 @@ export function CodeBlock({ code, file, className }: { code: string; file?: stri
           type="button"
           onClick={copy}
           className="flex shrink-0 items-center gap-1 rounded px-2 py-1 text-xs text-white/80 hover:bg-white/10 hover:text-white"
-          aria-label={`Copia il codice${file ? ` di ${file}` : ""}`}
+          aria-label={t(`Copia il codice${file ? ` di ${file}` : ""}`, `Copy the code${file ? ` of ${file}` : ""}`)}
         >
           {copied ? <CheckIcon className="size-3.5" aria-hidden /> : <CopyIcon className="size-3.5" aria-hidden />}
-          {copied ? "Copiato" : "Copia"}
+          {copied ? t("Copiato", "Copied") : t("Copia", "Copy")}
         </button>
       </figcaption>
       <pre className="overflow-x-auto px-3 py-3 text-white/90">
