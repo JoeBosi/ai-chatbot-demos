@@ -58,5 +58,5 @@ Names, people, prices and orders are invented; any resemblance to real businesse
 
 ## Author
 
-**Giuseppe Bosi**, Dottore in Ingegneria Elettronica (V.O.), Professore di Scienze e Tecnologie Informatiche.
+**Giuseppe Bosi** — Master's-level degree in Electronic Engineering (5-year Italian Laurea, pre-reform, EQF level 7); teacher of Computer Science and Technology in Italian secondary schools.
 [www.giuseppebosi.com](https://www.giuseppebosi.com) · [LinkedIn](https://www.linkedin.com/in/giuseppebosi)
