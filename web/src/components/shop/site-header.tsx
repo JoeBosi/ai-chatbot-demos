@@ -45,8 +45,6 @@ export function SiteHeader() {
         <a href={`https://chatbot-clinica.giuseppebosi.com${lang === "en" ? "/en" : ""}`} className="font-semibold underline underline-offset-2">
           {t("Prova la demo della clinica →", "Try the clinic demo →")}
         </a>
-        {" · "}
-        <LangSwitch className="font-semibold underline underline-offset-2" />
       </p>
       <div className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
         <Link href={href("/")} className="font-display shrink-0 text-2xl leading-none tracking-tight" onClick={() => setMenuOpen(false)}>
@@ -67,7 +65,7 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <LangSwitch className="hover:bg-enamel-soft ml-auto rounded-full border px-3 py-1.5 text-sm font-medium md:ml-0" />
+        <LangSwitch className="ml-auto md:ml-0" />
         <Link
           href={href("/carrello")}
           className="hover:bg-enamel-soft relative flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm"

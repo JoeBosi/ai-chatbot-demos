@@ -40,8 +40,6 @@ export function SiteHeader() {
         <a href={`https://chat-bot.giuseppebosi.com${lang === "en" ? "/en" : ""}`} className="font-semibold underline underline-offset-2">
           {t("Prova la demo del negozio →", "Try the shop demo →")}
         </a>
-        {" · "}
-        <LangSwitch className="font-semibold underline underline-offset-2" />
       </div>
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
         <Link href={href("/")} className="shrink-0 leading-none" onClick={() => setMenuOpen(false)}>
@@ -81,7 +79,7 @@ export function SiteHeader() {
           <PhoneIcon className="size-4" aria-hidden /> {clinica.telefono}
         </a>
 
-        <LangSwitch className="hover:bg-enamel-soft ml-auto rounded-full border px-3 py-1.5 text-sm font-medium lg:ml-0" />
+        <LangSwitch className="ml-auto lg:ml-0" />
 
         <button
           type="button"
