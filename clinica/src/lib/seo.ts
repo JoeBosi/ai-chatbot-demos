@@ -15,7 +15,7 @@ export const AUTHOR = {
   name: "Giuseppe Bosi",
   signature: { it: "Prof. Giuseppe Bosi", en: "by Prof. Giuseppe Bosi" } as Record<Lang, string>,
   titles: {
-    it: "Dottore in Ingegneria Elettronica (V.O.), Professore di Scienze e Tecnologie Informatiche",
+    it: "Dottore in Ingegneria Elettronica, Professore di Scienze e Tecnologie Informatiche",
     en: "Master's-level degree in Electronic Engineering (5-year Italian Laurea, pre-reform, EQF level 7), Teacher of Computer Science and Technology",
   } as Record<Lang, string>,
   url: { it: "https://www.giuseppebosi.com", en: "https://www.giuseppebosi.com/en/" } as Record<Lang, string>,

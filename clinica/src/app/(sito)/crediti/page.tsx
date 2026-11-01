@@ -38,7 +38,7 @@ function CreditiPageIt() {
       <h1 className="font-display text-4xl md:text-5xl">Crediti e licenze</h1>
       <p className="mt-4 text-lg leading-relaxed">
         Questo sito è un progetto didattico di <strong>Giuseppe Bosi</strong>, Dottore in Ingegneria
-        Elettronica (V.O.) e Professore di Scienze e Tecnologie Informatiche. Serve a far vedere, con un esempio che si può
+        Elettronica e Professore di Scienze e Tecnologie Informatiche. Serve a far vedere, con un esempio che si può
         provare, come un assistente conversazionale lavora dentro un sito: cerca nei documenti, calcola le disponibilità,
         prenota solo dopo la conferma di chi scrive, e rifiuta di fare ciò che non gli compete.
       </p>
