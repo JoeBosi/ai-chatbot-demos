@@ -9,7 +9,7 @@ product names and brands, doctors' names.
 | Italiano | English |
 |---|---|
 | Prof. Giuseppe Bosi | by Prof. Giuseppe Bosi |
-| Dottore in Ingegneria Elettronica | Master's-level degree in Electronic Engineering (5-year Italian Laurea, pre-reform, EQF level 7) |
+| Dottore in Ingegneria Elettronica | Master's-level degree in Electronic Engineering (5-year Italian Laurea, EQF level 7) |
 | Professore di Scienze e Tecnologie Informatiche | Teacher of Computer Science and Technology |
 | sito didattico / esempio didattico | teaching example |
 | demo / dimostrativo | demo |

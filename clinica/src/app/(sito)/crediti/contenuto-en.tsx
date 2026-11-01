@@ -23,7 +23,7 @@ export function CreditiEn() {
       <h1 className="font-display text-4xl md:text-5xl">Credits and licences</h1>
       <p className="mt-4 text-lg leading-relaxed">
         This site is a teaching project by <strong>Prof. Giuseppe Bosi</strong>, Master&apos;s-level degree in Electronic
-        Engineering (5-year Italian Laurea, pre-reform, EQF level 7) and Teacher of Computer Science and Technology. It shows,
+        Engineering (5-year Italian Laurea, EQF level 7) and Teacher of Computer Science and Technology. It shows,
         with an example you can try, how a chat assistant works inside a website: it searches the documents, works out
         availability, books only after the person confirms, and refuses to do what is not its job.
       </p>
