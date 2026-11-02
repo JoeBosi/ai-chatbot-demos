@@ -18,6 +18,9 @@ export const AUTHOR = {
     it: "Dottore in Ingegneria Elettronica, Professore di Scienze e Tecnologie Informatiche",
     en: "Master's-level degree in Electronic Engineering (5-year Italian Laurea, EQF level 7), Teacher of Computer Science and Technology",
   } as Record<Lang, string>,
+  // Footer signature; `titles` stays for the structured data and llms.txt.
+  byline: "Prof. Giuseppe Bosi",
+  subject: { it: "Scienze e Tecnologie Informatiche", en: "Computer Science and Technology" } as Record<Lang, string>,
   url: { it: "https://www.giuseppebosi.com", en: "https://www.giuseppebosi.com/en/" } as Record<Lang, string>,
   linkedin: "https://www.linkedin.com/in/giuseppebosi",
 };

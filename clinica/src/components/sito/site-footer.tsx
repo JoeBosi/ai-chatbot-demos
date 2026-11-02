@@ -105,9 +105,9 @@ export async function SiteFooter() {
           </p>
           <p>
             <a href={AUTHOR.url[lang]} className="font-semibold text-white/90 underline hover:text-white">
-              {AUTHOR.signature[lang]}
+              {AUTHOR.byline}
             </a>
-            , {AUTHOR.titles[lang]}. {t("Testi con licenza", "Texts under licence")}{" "}
+            , {AUTHOR.subject[lang]}. {t("Testi con licenza", "Texts under licence")}{" "}
             <a href={`https://creativecommons.org/licenses/by/4.0/${lang === "en" ? "" : "deed.it"}`} className="underline hover:text-white" rel="noreferrer noopener" target="_blank">
               CC BY 4.0
             </a>

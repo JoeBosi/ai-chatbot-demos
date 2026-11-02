@@ -39,11 +39,11 @@ export async function SiteFooter() {
       <div className="border-t border-white/10 px-4 py-5">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 text-xs leading-relaxed text-white/70">
           <p>
-            {t("Un progetto didattico di ", "A teaching project ")}
+            {t("Un progetto didattico di ", "A teaching project by ")}
             <a href={AUTHOR.url[lang]} className="font-semibold text-white/90 underline hover:text-white">
-              {AUTHOR.signature[lang]}
+              {AUTHOR.byline}
             </a>
-            , {AUTHOR.titles[lang]}.
+            , {AUTHOR.subject[lang]}.
           </p>
           <p>
             {t("Altri lavori dell'autore: ", "More by the author: ")}
