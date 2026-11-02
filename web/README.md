@@ -14,6 +14,16 @@ Sito pubblicato su https://chat-bot.giuseppebosi.com. Decisioni, sicurezza e com
 - `tests/e2e/` — Playwright contro un sito in esecuzione (`BASE_URL`); `widget.spec.ts` parte da
   un'altra origine (pagina finta in `tests/fixtures/host`, servita da `webServer`)
 
+## Primo avvio da un clone pulito
+```bash
+cd web
+docker run -d --name chatbot-db-dev -p 127.0.0.1:55432:5432 \
+  -e POSTGRES_USER=chatbot -e POSTGRES_PASSWORD=devpass -e POSTGRES_DB=chatbot pgvector/pgvector:pg18
+cp .env.example .env.local     # poi scrivi la tua OPENROUTER_API_KEY (gratuita su openrouter.ai)
+npm ci && npm run dev          # http://127.0.0.1:3041
+```
+Provato da un clone pulito (Node 24): le pagine rispondono 200; senza `OPENROUTER_API_KEY` l'assistente mostra «non riesce a rispondere».
+
 ## Comandi
 ```bash
 npm run dev          # http://127.0.0.1:3041 (serve il DB di sviluppo: docker start chatbot-db-dev)

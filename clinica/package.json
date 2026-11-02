@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test",
     "content:check": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/content.ts --dry-run",
     "content:sync": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/content.ts",

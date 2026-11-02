@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { Indice, Nota, Prova, Sezione } from "@/components/tutorial/blocks";
@@ -7,7 +8,7 @@ import {
   snippetApiWidget,
   snippetCaddy,
   snippetChiave,
-  snippetChiaveHtml,
+  snippetChiaveScript,
   snippetCompose,
   snippetComposeProd,
   snippetCookie,
@@ -16,6 +17,8 @@ import {
   snippetEmbedPage,
   snippetEmbeddings,
   snippetEsegui,
+  outCurl,
+  outScript,
   snippetIncolla,
   snippetIntestazioni,
   snippetIstruzioni,
@@ -209,11 +212,40 @@ export function TutorialIt() {
               browser: quasi sempre è un errore di indirizzo nello{" "}
               <code>src</code>.
             </p>
+            <p className="font-semibold">Cosa dovresti vedere</p>
+            <Image
+              src="/tutorial/widget-pagina-prova.webp"
+              width={1000}
+              height={700}
+              alt="Una pagina bianca con il titolo «Il mio sito» e, a destra, il riquadro del Barista aperto: la domanda sulla spedizione e la risposta con i 6,90 € e la soglia dei 49 €."
+              className="rounded-lg border"
+            />
+            <p>
+              Non hai voglia di installare niente? Apri la stessa pagina{" "}
+              <a
+                className="underline"
+                href="https://stackblitz.com/github/JoeBosi/ai-chatbot-demos/tree/main/examples/widget-demo?file=index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                direttamente nel browser, su StackBlitz
+              </a>{" "}
+              (gratis, senza registrarti): il file è già pronto, clicca la
+              bollicina e scrivi.
+            </p>
+            <Image
+              src="/tutorial/stackblitz-widget.webp"
+              width={1280}
+              height={800}
+              alt="StackBlitz con il file index.html a sinistra e, a destra, l'anteprima: la pagina «Il mio sito» con la bollicina verde «Chiedi al Barista» in basso."
+              className="rounded-lg border"
+            />
           </Prova>
           <p>
             Se preferisci aprire la chat da un bottone tuo, c’è una piccola API:
           </p>
           <CodeBlock file="il tuo sito · index.html" code={snippetApiWidget} />
+          <p>Cosa dovresti vedere: la bollicina sparisce e il tuo bottone «Serve aiuto?» apre lo stesso riquadro della chat. Senza il secondo blocco restano tutti e due.</p>
           <Nota>
             Se invece vuoi chiamare le API a mano (con <code>curl</code>, o da
             un tuo script), serve un’intestazione:{" "}
@@ -290,6 +322,12 @@ export function TutorialIt() {
               terminale:
             </p>
             <CodeBlock code={snippetCurl} />
+            <p className="font-semibold">Cosa dovresti vedere</p>
+            <p>
+              Le righe compaiono una alla volta, non tutte insieme (le parti
+              lunghe sono accorciate con «...»):
+            </p>
+            <CodeBlock file="uscita del terminale" code={outCurl} />
           </Prova>
         </Sezione>
 
@@ -591,7 +629,36 @@ export function TutorialIt() {
             </li>
           </ul>
           <CodeBlock file="src/lib/request.ts" code={snippetChiave} />
-          <CodeBlock code={snippetChiaveHtml} />
+          <CodeBlock file="prova-chat.mjs" code={snippetChiaveScript} />
+          <p>
+            Salvalo e lancia <code>node prova-chat.mjs</code>. Cosa dovresti
+            vedere: la risposta che scorre a pezzi, come questa.
+          </p>
+          <CodeBlock file="uscita del terminale" code={outScript} />
+          <p>
+            Preferisci Python? Il quaderno{" "}
+            <a
+              className="underline"
+              href="https://colab.research.google.com/github/JoeBosi/ai-chatbot-demos/blob/main/notebooks/chat-api.ipynb"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              si apre su Google Colab
+            </a>{" "}
+            (serve un account Google, nient&apos;altro da installare): premi
+            «Esegui» e la risposta compare sotto la cella. Un&apos;avvertenza
+            tecnica: queste chiamate funzionano da un terminale, da Node o da
+            Python, non dal codice di una pagina web su un altro sito, perché il
+            browser le blocca di proposito (stesso motivo per cui il server
+            controlla l&apos;origine). Da una pagina web si usa il widget.
+          </p>
+          <Image
+            src="/tutorial/colab-quaderno.webp"
+            width={1280}
+            height={800}
+            alt="Il quaderno chat-api.ipynb aperto su Google Colab: titolo, spiegazione in due lingue e la cella con il codice Python da eseguire."
+            className="rounded-lg border"
+          />
           <CodeBlock file="src/lib/rate-limit.ts" code={snippetLimiti} />
           <p className="font-semibold">Quanto costa, in pratica</p>
           <p>

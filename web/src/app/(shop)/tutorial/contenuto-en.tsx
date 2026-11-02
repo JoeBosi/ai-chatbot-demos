@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { Indice, Nota, Prova, Sezione } from "@/components/tutorial/blocks";
@@ -7,7 +8,7 @@ import {
   snippetApiWidget,
   snippetCaddy,
   snippetChiave,
-  snippetChiaveHtml,
+  snippetChiaveScript,
   snippetCompose,
   snippetComposeProd,
   snippetCookie,
@@ -16,6 +17,8 @@ import {
   snippetEmbedPage,
   snippetEmbeddings,
   snippetEsegui,
+  outCurl,
+  outScript,
   snippetIncolla,
   snippetIntestazioni,
   snippetIstruzioni,
@@ -127,6 +130,33 @@ export function TutorialEn() {
               <code>file://</code> address. You need a real address, even just on your own computer.
             </p>
             <CodeBlock code={snippetProvaLocale} />
+            <p className="font-semibold">What you should see</p>
+            <Image
+              src="/tutorial/widget-pagina-prova.webp"
+              width={1000}
+              height={700}
+              alt="A white page titled “Il mio sito” and, on the right, the Barista panel open: the question about shipping and the reply with the 6.90 € price and the 49 € free-shipping threshold."
+              className="rounded-lg border"
+            />
+            <p>
+              Would you rather not install anything? Open the same page{" "}
+              <a
+                className="underline"
+                href="https://stackblitz.com/github/JoeBosi/ai-chatbot-demos/tree/main/examples/widget-demo?file=index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                right in your browser, on StackBlitz
+              </a>{" "}
+              (free, no sign-up): the file is ready, click the bubble and type.
+            </p>
+            <Image
+              src="/tutorial/stackblitz-widget.webp"
+              width={1280}
+              height={800}
+              alt="StackBlitz with the index.html file on the left and the preview on the right: the “Il mio sito” page with the green “Chiedi al Barista” bubble at the bottom."
+              className="rounded-lg border"
+            />
             <p>
               It works if the bubble appears, clicking it opens the panel, and writing «Quanto costa la spedizione?» (how much is
               shipping?) brings an answer with the 49 € rule. If the bubble does not appear, open the browser console: it is almost
@@ -135,6 +165,7 @@ export function TutorialEn() {
           </Prova>
           <p>If you would rather open the chat from your own button, there is a small API:</p>
           <CodeBlock file="your site · index.html" code={snippetApiWidget} />
+          <p>What you should see: the bubble disappears and your “Serve aiuto?” button opens the same chat panel. Without the second block you get both.</p>
           <Nota>
             If instead you want to call the APIs by hand (with <code>curl</code>, or from a script of yours), you need a header:{" "}
             <code>x-cf-key: cfdemo_pub_2026</code>. It is a <strong>public</strong> key: it is written here, it reaches the browser
@@ -190,6 +221,9 @@ export function TutorialEn() {
           <Prova titolo="watch the pieces arrive" lang="en">
             <p>This is the same call the browser makes, seen from the terminal:</p>
             <CodeBlock code={snippetCurl} />
+            <p className="font-semibold">What you should see</p>
+            <p>The lines appear one at a time, not all at once (long parts are shortened with “...”):</p>
+            <CodeBlock file="terminal output" code={outCurl} />
           </Prova>
         </Sezione>
 
@@ -383,7 +417,34 @@ export function TutorialEn() {
             </li>
           </ul>
           <CodeBlock file="src/lib/request.ts" code={snippetChiave} />
-          <CodeBlock code={snippetChiaveHtml} />
+          <CodeBlock file="prova-chat.mjs" code={snippetChiaveScript} />
+          <p>
+            Save it and run <code>node prova-chat.mjs</code>. What you should see: the reply flowing in piece by piece,
+            like this.
+          </p>
+          <CodeBlock file="terminal output" code={outScript} />
+          <p>
+            Prefer Python? The notebook{" "}
+            <a
+              className="underline"
+              href="https://colab.research.google.com/github/JoeBosi/ai-chatbot-demos/blob/main/notebooks/chat-api.ipynb"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              opens on Google Colab
+            </a>{" "}
+            (a Google account is needed, nothing else to install): press “Run” and the reply appears under the cell. One
+            technical note: these calls work from a terminal, Node or Python, not from the code of a web page on another
+            site, because the browser blocks them on purpose (the same reason the server checks the origin). From a web
+            page, use the widget.
+          </p>
+          <Image
+            src="/tutorial/colab-quaderno.webp"
+            width={1280}
+            height={800}
+            alt="The chat-api.ipynb notebook open on Google Colab: title, a two-language explanation and the cell with the Python code to run."
+            className="rounded-lg border"
+          />
           <CodeBlock file="src/lib/rate-limit.ts" code={snippetLimiti} />
           <p className="font-semibold">What it costs, in practice</p>
           <p>

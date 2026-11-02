@@ -30,11 +30,12 @@ python3 -m http.server 8099
 export const snippetApiWidget = `<!-- Aprire la chat da un tuo bottone, invece che dalla bollicina -->
 <button type="button" onclick="CremaFerroWidget.apri()">Serve aiuto?</button>
 
-<!-- Per nasconderla del tutto e usare solo il tuo bottone: -->
-<style>[data-crema-ferro] { --niente: 0 }</style>
+<!-- Per nascondere la bollicina e usare solo il tuo bottone: -->
 <script>
-  // La bollicina vive in uno Shadow DOM: si spegne dall'API, non dal CSS.
-  window.addEventListener("load", () => CremaFerroWidget.chiudi());
+  // La bollicina vive in uno Shadow DOM: si raggiunge da lì dentro, non con il CSS della pagina.
+  window.addEventListener("load", () => {
+    document.querySelector("[data-crema-ferro]").shadowRoot.querySelector("button.bolla").style.display = "none";
+  });
 </script>`;
 
 export const snippetProgetto = `# Node 24 e Docker installati. Poi:
@@ -440,8 +441,11 @@ test("gli stili del sito ospite non entrano nel widget", async ({ page, baseURL 
   expect(colore).toBe("rgb(18, 58, 47)"); // il verde del widget, non il rosso del sito
 });`;
 
-export const snippetEsegui = `# far partire tutto in locale
-docker compose up -d db
+export const snippetEsegui = `# far partire tutto in locale (da un clone pulito: cd web)
+docker run -d --name chatbot-db-dev -p 127.0.0.1:55432:5432 \\
+  -e POSTGRES_USER=chatbot -e POSTGRES_PASSWORD=devpass -e POSTGRES_DB=chatbot pgvector/pgvector:pg18
+cp .env.example .env.local  # poi scrivi la tua OPENROUTER_API_KEY (gratuita su openrouter.ai)
+npm ci
 npm run dev                 # http://127.0.0.1:3041
 
 # controlli prima di ogni consegna
@@ -570,15 +574,43 @@ if (!hasWidgetKey(req)) return jsonError(401, "Chiave mancante: vedi /tutorial."
 // Serve a tenere fuori crawler e script a caso, e a poterla cambiare se qualcuno ne abusa.
 // Un vero segreto (la chiave del modello) resta solo sul server e non esce mai di lì.`;
 
-export const snippetChiaveHtml = `<!-- Chiamare le API da fuori (script propri, prove con curl): serve l'intestazione -->
-fetch("https://chat-bot.giuseppebosi.com/api/chat", {
+export const snippetChiaveScript = `// prova-chat.mjs — si lancia con: node prova-chat.mjs   (Node 18 o più recente, niente da installare)
+const risposta = await fetch("https://chat-bot.giuseppebosi.com/api/chat", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    "x-cf-key": "cfdemo_pub_2026",   // chiave pubblica della demo
+    "x-cf-key": "cfdemo_pub_2026",     // chiave pubblica della demo
+    "User-Agent": "prova-chat",        // dai sempre un nome al tuo client: alcune API rifiutano chi non ne ha
   },
-  body: JSON.stringify({ id: "prova", messages: [{ id: "u1", role: "user", parts: [{ type: "text", text: "Ciao" }] }] }),
+  body: JSON.stringify({
+    id: "prova",
+    messages: [{ id: "u1", role: "user", parts: [{ type: "text", text: "Quanto costa la spedizione?" }] }],
+  }),
 });
+if (!risposta.ok) throw new Error(\`Errore \${risposta.status}\`);
 
-<!-- Chi incolla soltanto lo <script> del widget non deve fare niente:
-     la chiave la mette la pagina /embed, servita dal nostro server. -->`;
+// La risposta arriva a pezzi (SSE): una riga "data: {...}" per evento.
+let resto = "";
+for await (const pezzo of risposta.body.pipeThrough(new TextDecoderStream())) {
+  const righe = (resto + pezzo).split("\\n");
+  resto = righe.pop();
+  for (const riga of righe) {
+    if (!riga.startsWith("data: ") || riga === "data: [DONE]") continue;
+    const evento = JSON.parse(riga.slice(6));
+    if (evento.type === "text-delta") process.stdout.write(evento.delta);
+  }
+}
+console.log();`;
+
+export const outCurl = `data: {"type":"start"}
+data: {"type":"start-step"}
+data: {"type":"tool-input-available","toolName":"searchHelp","input":{"question":"Quanto costa la spedizione?"},...}
+data: {"type":"tool-output-available","output":{"results":[{"title":"Spedizioni","section":"Costi di spedizione",...}]},...}
+data: {"type":"text-delta","delta":"La spedizione in Italia costa 6,90 € ed è gratuita"}
+data: {"type":"text-delta","delta":" per ordini da 49 € in su..."}
+data: {"type":"finish","finishReason":"stop","messageMetadata":{"model":"..."}}
+data: [DONE]`;
+
+export const outScript = `La spedizione in Italia costa 6,90 € ed è gratuita per ordini da 49 € in su.
+Per isole minori, Livigno e Campione d'Italia c'è un supplemento di 10 €.
+Non spediamo fuori dall'Italia.`;
