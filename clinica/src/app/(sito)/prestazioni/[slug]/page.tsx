@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps<"/prestazioni/[slug
   const [found, lang] = await Promise.all([getService((await params).slug), getLang()]);
   if (!found) return {};
   const service = lService(lang, found);
-  return pageMeta(lang, `/prestazioni/${service.slug}`, { title: service.name, description: service.description.slice(0, 160) });
+  return pageMeta(lang, `/prestazioni/${service.slug}`, { title: lang === "en" ? `${service.name}: how to book` : `${service.name}: come prenotare`, description: service.description.slice(0, 160) });
 }
 
 export default async function PrestazioneDetailPage({ params }: PageProps<"/prestazioni/[slug]">) {

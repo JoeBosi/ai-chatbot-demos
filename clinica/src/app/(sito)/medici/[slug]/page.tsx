@@ -13,8 +13,9 @@ import { pageMeta } from "@/lib/seo";
 export async function generateMetadata({ params }: PageProps<"/medici/[slug]">): Promise<Metadata> {
   const [doctor, lang] = await Promise.all([getDoctor((await params).slug), getLang()]);
   if (!doctor) return {};
+  const specialities = lDoctor(lang, doctor).specialities.map((s) => s.name).join(", ");
   return pageMeta(lang, `/medici/${doctor.slug}`, {
-    title: doctor.name,
+    title: `${doctor.name}, ${specialities}`,
     description:
       lang === "en"
         ? `${doctor.name}: specialties, hours and services at Poliambulatorio Vallenova.`

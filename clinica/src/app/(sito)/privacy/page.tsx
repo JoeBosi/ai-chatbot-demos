@@ -7,12 +7,12 @@ import { PrivacyEn } from "./contenuto-en";
 
 export const generateMetadata: () => Promise<Metadata> = metaFor("/privacy", {
   it: {
-    title: "Privacy",
+    title: "Privacy e dati personali",
     description:
       "Quali dati passano da questo sito didattico, dove vanno e per quanto tempo restano. Breve e senza giri di parole.",
   },
   en: {
-    title: "Privacy",
+    title: "Privacy policy",
     description:
       "What data passes through this teaching site, where it goes and how long it stays. Short and plain.",
   },

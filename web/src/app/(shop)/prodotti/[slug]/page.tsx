@@ -16,7 +16,10 @@ export async function generateMetadata({ params }: PageProps<"/prodotti/[slug]">
   const [found, lang] = await Promise.all([getProduct((await params).slug), getLang()]);
   if (!found) return {};
   const product = localizeProduct(lang, found);
-  return pageMeta(lang, `/prodotti/${product.slug}`, { title: product.name, description: product.summary });
+  const itCategory = await getCategory(found.categorySlug);
+  const category = itCategory && localizeCategory(lang, itCategory);
+  const title = category ? `${product.name}, ${category.name.toLowerCase()}` : product.name;
+  return pageMeta(lang, `/prodotti/${product.slug}`, { title, description: product.summary });
 }
 
 function questionsFor(category: string, name: string, lang: "it" | "en") {

@@ -78,7 +78,9 @@ export function pageMeta(lang: Lang, path: string, meta: Text): Metadata {
       url,
       title,
       description: meta.description,
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: SITE_NAME }],
     },
+    twitter: { card: "summary_large_image", title, description: meta.description, images: ["/og.png"] },
   };
 }
 
@@ -97,7 +99,7 @@ export function jsonLd(lang: Lang) {
     honorificPrefix: "Prof.",
     jobTitle: AUTHOR.titles[lang],
     url: AUTHOR.url[lang],
-    sameAs: [AUTHOR.linkedin],
+    sameAs: ["https://www.giuseppebosi.com", AUTHOR.linkedin, SOURCE_URL],
   };
   const site = lang === "en" ? `${SITE_URL}/en` : SITE_URL;
   return {
