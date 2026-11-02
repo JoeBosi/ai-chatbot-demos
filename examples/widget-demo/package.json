@@ -1,0 +1,8 @@
+{
+  "name": "widget-demo",
+  "private": true,
+  "description": "A plain HTML page with the Crema & Ferro chat widget. Open it on StackBlitz or run: npm start",
+  "scripts": { "start": "serve -l 3000 ." },
+  "devDependencies": { "serve": "14.2.4" },
+  "stackblitz": { "startCommand": "npm start" }
+}
